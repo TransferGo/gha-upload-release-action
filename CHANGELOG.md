@@ -1,7 +1,25 @@
 # Changelog
 
+## [2.11.4] - 2026-02-25
+- Bump npm versions
+
+## [2.11.3] - 2025-11-20
+- Post-fix releases created as draft when they shouldn't have - [#99](https://github.com/svenstaro/upload-release-action/pull/99)
+
+## [2.11.2] - 2025-07-06
+- Solved race-condition when matrix builds try to create the same release at the same time - [#147](https://github.com/svenstaro/upload-release-action/pull/147)
+
+## [2.11.1] - 2025-06-30
+- Adds a `release_id` output, and optional input, for uploading files to release - [#136](https://github.com/svenstaro/upload-release-action/pull/136) (thanks @alexis-opolka)
+
+## [2.10.0] - 2025-06-21
+- Adds the ability to disable duplicate check, for lower Github API usage - [#142](https://github.com/svenstaro/upload-release-action/pull/142) (thanks @colinsullivan)
+
+## [2.9.1] - 2025-06-21
+- Fixed development + CI, updated dependencies [#137](https://github.com/svenstaro/upload-release-action/pull/137)
+
 ## [2.9.0] - 2024-02-22
-- Allow seeting a release as draft [#112](https://github.com/svenstaro/upload-release-action/pull/112) (thanks @ShonP40)
+- Allow setting a release as draft [#112](https://github.com/svenstaro/upload-release-action/pull/112) (thanks @ShonP40)
 
 ## [2.8.0] - 2024-02-21
 - Bump all deps
