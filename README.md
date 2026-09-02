@@ -1,4 +1,4 @@
-# Upload files to a GitHub release [![GitHub Actions Workflow](https://github.com/svenstaro/upload-release-action/actions/workflows/ci.yml/badge.svg)](https://github.com/svenstaro/upload-release-action/actions)
+# Upload files to a GitHub release [![GitHub Actions Workflow](https://github.com/svenstaro/upload-release-action/actions/workflows/e2e_test.yml/badge.svg)](https://github.com/svenstaro/upload-release-action/actions)
 
 This action allows you to select which files to upload to the just-tagged release.
 It runs on all operating systems types offered by GitHub.
@@ -9,26 +9,31 @@ You must provide:
 
 - `file`: A local file to be uploaded as the asset.
 
-Optional Arguments
+### Optional Arguments
 
-- `repo_token`: Defaults to `github.token`.
-- `tag`: The tag to upload into. If you want the current event's tag or branch name, use `${{ github.ref }}` (the `refs/tags/` and `refs/heads/` prefixes will be automatically stripped). Defaults to `github.ref`.
-- `asset_name`: The name the file gets as an asset on a release. Use `$tag` to include the tag name. When not provided it will default to the filename.
-                This is not used if `file_glob` is set to `true`.
-- `file_glob`: If set to true, the `file` argument can be a glob pattern (`asset_name` is ignored in this case) (Default: `false`)
-- `overwrite`: If an asset with the same name already exists, overwrite it (Default: `false`).
-- `promote`: If a prerelease already exists, promote it to a release (Default: `false`).
-- `draft`: Sets the release as a draft instead of publishing it, allowing you to make any edits needed before releasing (Default: `false`).
-- `prerelease`: Mark the release as a pre-release (Default: `false`).
-- `make_latest`: Mark the release as the latest release for the repository (Default: `true`).
-- `release_name`: Explicitly set a release name. (Defaults: implicitly same as `tag` via GitHub API).
-- `target_commit`: Sets the commit hash or branch for the tag to be based on (Default: the default branch, usually `main`).
-- `body`: Content of the release text (Default: `""`).
-- `repo_name`: Specify the name of the GitHub repository in which the GitHub release will be created, edited, and deleted. If the repository is other than the current, it is required to create a personal access token with `repo`, `user`, `admin:repo_hook` scopes to the foreign repository and add it as a secret. (Default: current repository).
+
+| **Argument**       | **Default**                     | **Description**                                                                                                                                                                   |
+|--------------------|---------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `repo_token`       | `github.token`                  | Defaults to `github.token`.                                                                                                                                                       |
+| `tag`              | `github.ref`                    | The tag to upload into. If you want the current event's tag or branch name, use `${{ github.ref }}` (the `refs/tags/` and `refs/heads/` prefixes will be automatically stripped). |
+| `asset_name`       | Filename                        | The name the file gets as an asset on a release. Use `$tag` to include the tag name. This is not used if `file_glob` is set to `true`.                                            |
+| `file_glob`        | `false`                         | If set to true, the `file` argument can be a glob pattern (`asset_name` is ignored in this case).                                                                                 |
+| `overwrite`        | `false`                         | If an asset with the same name already exists, overwrite it.                                                                                                                      |
+| `check_duplicates` | `true`                          | Check for existing assets with the same name. Disabling removes this validity check, and allows reduced Github API usage when there are a large number of files.                  |
+| `promote`          | `false`                         | If a prerelease already exists, promote it to a release.                                                                                                                          |
+| `draft`            | `false`                         | Sets the release as a draft instead of publishing it, allowing you to make any edits needed before releasing.                                                                     |
+| `release_id`       | ---                             | Used for searching for existing release, instead of tag. Must be used if uploading files to an existing draft release.                                                            |
+| `prerelease`       | `false`                         | Mark the release as a pre-release.                                                                                                                                                |
+| `make_latest`      | `true`                          | Mark the release as the latest release for the repository.                                                                                                                        |
+| `release_name`     | Same as `tag`                   | Explicitly set a release name.                                                                                                                                                    |
+| `target_commit`    | Default branch (usually `main`) | Sets the commit hash or branch for the tag to be based on.                                                                                                                        |
+| `body`             | `""`                            | Content of the release text.                                                                                                                                                      |
+| `repo_name`        | Current repository              | Specify the name of the GitHub repository in which the GitHub release will be created, edited, and deleted.                                                                       |
 
 ## Output variables
 
 - `browser_download_url`: The publicly available URL of the asset.
+- `release_id`: The numerical ID of the created or updated release.
 
 ## Usage
 
@@ -51,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Build
       run: cargo build --release
     - name: Upload binaries to release
@@ -93,7 +98,7 @@ jobs:
             asset_name: mything-macos-amd64
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Build
       run: cargo build --release --locked
     - name: Upload binaries to release
@@ -119,7 +124,7 @@ jobs:
     name: Publish binaries
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Build
       run: cargo build --release
     - name: Upload binaries to release
@@ -148,7 +153,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Build
       run: cargo build --release
     - name: Upload binaries to release
@@ -186,7 +191,7 @@ jobs:
     runs-on: ubuntu-latest
          
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # This step reads a file from repo and use it for body of the release
       # This works on any self-hosted runner OS
@@ -212,13 +217,14 @@ jobs:
 
 ### Permissions
 
-This actions requires writes access to the release. If you are using [granular permissions](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions)
-in your workflow, you will need to add the `contents: write` permission to the token:
+This actions requires writes access to the release. If you are encountering "resource not accessible by integration" errors, you will need to add the `contents: write` permission to the token using [granular permissions](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions):
 
 ```yaml
 permissions:
   contents: write
 ```
+
+By default, these permissions are granted on `push` but not on `pr` - and you should be wary of adding them to workflows that run on pr, as they allow [wide access to changing the entire repo's contents](https://docs.github.com/en/rest/authentication/permissions-required-for-github-apps?apiVersion=2022-11-28#repository-permissions-for-contents)
 
 ## Releasing
 
